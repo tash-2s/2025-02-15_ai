@@ -20,7 +20,6 @@ import { memo, ReactNode, RefObject, useEffect, useRef, useState } from "react";
 import { useLiveAPIContext } from "../../contexts/LiveAPIContext";
 import { UseMediaStreamResult } from "../../hooks/use-media-stream-mux";
 import { useScreenCapture } from "../../hooks/use-screen-capture";
-import AudioPulse from "../audio-pulse/AudioPulse";
 import "./control-tray.scss";
 
 export type ControlTrayProps = {
@@ -29,33 +28,8 @@ export type ControlTrayProps = {
   onVideoStreamChange?: (stream: MediaStream | null) => void;
 };
 
-type MediaStreamButtonProps = {
-  isStreaming: boolean;
-  onIcon: string;
-  offIcon: string;
-  start: () => Promise<any>;
-  stop: () => any;
-};
-
-/**
- * button used for triggering webcam or screen-capture
- */
-const MediaStreamButton = memo(
-  ({ isStreaming, onIcon, offIcon, start, stop }: MediaStreamButtonProps) =>
-    isStreaming ? (
-      <button className="action-button" onClick={stop}>
-        <span className="material-symbols-outlined">{onIcon}</span>
-      </button>
-    ) : (
-      <button className="action-button" onClick={start}>
-        <span className="material-symbols-outlined">{offIcon}</span>
-      </button>
-    ),
-);
-
 function ControlTray({
   videoRef,
-  children,
   onVideoStreamChange = () => {},
 }: ControlTrayProps) {
   const videoStreams = [useScreenCapture()];
@@ -65,7 +39,7 @@ function ControlTray({
   const renderCanvasRef = useRef<HTMLCanvasElement>(null);
   const connectButtonRef = useRef<HTMLButtonElement>(null);
 
-  const { client, connected, connect, disconnect, volume } =
+  const { client, connected, connect, disconnect } =
     useLiveAPIContext();
 
   useEffect(() => {
@@ -118,7 +92,7 @@ function ControlTray({
   }, [connected, activeVideoStream, client, videoRef]);
 
   //handler for swapping from one video-stream to the next
-  const changeStreams = (next?: UseMediaStreamResult) => async () => {
+  const changeStreams = async (next?: UseMediaStreamResult) => {
     if (next) {
       const mediaStream = await next.start();
       setActiveVideoStream(mediaStream);
@@ -134,26 +108,13 @@ function ControlTray({
   return (
     <section className="control-tray">
       <canvas style={{ display: "none" }} ref={renderCanvasRef} />
-      <nav className={cn("actions-nav", { disabled: !connected })}>
-        <div className="action-button no-action outlined">
-          <AudioPulse volume={volume} active={connected} hover={false} />
-        </div>
-        <MediaStreamButton
-          isStreaming={screenCapture.isStreaming}
-          start={changeStreams(screenCapture)}
-          stop={changeStreams()}
-          onIcon="cancel_presentation"
-          offIcon="present_to_all"
-        />
-        {children}
-      </nav>
 
       <div className={cn("connection-container", { connected })}>
         <div className="connection-button-container">
           <button
             ref={connectButtonRef}
             className={cn("action-button connect-toggle", { connected })}
-            onClick={connected ? disconnect : connect}
+            onClick={connected ? () => changeStreams().then(disconnect) : () => changeStreams(screenCapture).then(connect) }
           >
             <span className="material-symbols-outlined filled">
               {connected ? "pause" : "play_arrow"}
