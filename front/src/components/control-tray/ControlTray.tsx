@@ -24,6 +24,8 @@ import "./control-tray.scss";
 
 const pro = "Start describing the video immediately and continuously."
 
+let counter = 0
+
 function ControlTray() {
   const videoStreams = [useScreenCapture()];
   const [activeVideoStream, setActiveVideoStream] =
@@ -53,7 +55,15 @@ function ControlTray() {
 
   useEffect(() => {
     client.on("log", console.log)
-    client.on("turncomplete", () => client.send({ text: pro }))
+
+    client.on("turncomplete", () => {
+      counter++
+      if (counter % 2 === 0) {
+        setTimeout(() => {
+          client.send({ text: pro })
+        }, 500)
+      }
+    })
     return () => {client.off("log", console.log)}
   }, [client])
 
