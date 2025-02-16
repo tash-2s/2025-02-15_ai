@@ -37,18 +37,15 @@ function ControlTray() {
   const { setConfig, client, connected, connect, disconnect } =
     useLiveAPIContext();
 
-  const [yurl, setYurl] = useState("");
+  const [yurl, setYurl] = useState("https://www.youtube.com/watch?v=sOFmYwYa9Pk");
+  const [isPlay, setIsPlay] = useState(false)
 
-  const go = () => {
+  const play = () => {
+    setIsPlay(true)
   }
 
-  const [isSummarizing, setIsSummarizing] = useState(false)
-  const [summary, setSummary] = useState("")
-
   const handleSummarize = async () => {
-    setIsSummarizing(true)
     const s = await summarize(yurl)
-    setSummary(s)
     speakText(s)
   }
 
@@ -174,12 +171,12 @@ Keep responses short and to the point. No unnecessary introductions—just descr
           onChange={e => setYurl(e.target.value)}
         />
         {" "}
-        <button type="button" onClick={go}>Go</button>
+        <button type="button" onClick={play}>Play</button>
       </div>
       <br />
       <br />
       <div id="yt-embed">
-        {yurl === "" ? <></> : <YoutubeEmbed yurl={yurl} />}
+        {isPlay ? <YoutubeEmbed yurl={yurl} /> : <></>}
       </div>
     </div>
     <section className="control-tray">
