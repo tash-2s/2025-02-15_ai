@@ -55,22 +55,21 @@ def _summarize(transcript_text):
     messages = [
         ChatMessage(
             role="system", content="""
-You are given a transcript from a YouTube video. Your task is to generate a concise and professional reading script that summarizes the key points of the video. The script should be structured as if spoken by a news presenter or journalist, delivering an objective and engaging summary.
+You are given a transcript from a YouTube video. Your task is to generate a concise and neutral summary of the video's content, written as if an objective third party were explaining what the video covers. The summary should focus on key points and main takeaways rather than presenting the content as a scripted news report.
 
 Requirements:
 
-- Maintain a neutral, third-person perspective, avoiding personal opinions or subjective interpretations.
-- Use clear, engaging, and accessible language suited for a general audience.
-- Ensure a smooth, natural flow, making it easy to read aloud.
-- Keep the tone professional and objective, focusing on factual content rather than the creator’s perspective.
-- The script must be concise enough to be spoken in under 1 minute at a natural speaking pace.
+- Maintain a neutral, third-person perspective, simply conveying what the video discusses without subjective opinions or embellishments.
+- Use clear and natural language, making it easy to understand for a general audience.
+- Ensure a smooth, coherent flow, suitable for a spoken summary but not structured as a scripted announcement.
+- Focus on describing the video's content concisely, rather than adopting the perspective of its creator or adding personal interpretations.
+- The summary must be brief enough to be spoken in under 1 minute at a natural speaking pace.
 
 Guidelines:
 
-- Do not include additional commentary, explanations, or metadata—only provide the finalized reading script.
-- No introductions or conclusions like "This video is about..."—start directly with the key content.
-- Focus on essential points and avoid unnecessary details to fit within the time limit."""
+- Do not format it like a news script or announcement. Instead, describe the content naturally as if explaining it to someone unfamiliar with the video.
+- No introductions or conclusions like "This video is about..."—start directly with the key content."""
         ),
         ChatMessage(role="user", content=transcript_text),
     ]
-    return llm.chat(messages)
+    return str(llm.chat(messages)).removeprefix("assistant: ")
