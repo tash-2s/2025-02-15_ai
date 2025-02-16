@@ -46,6 +46,9 @@ function App() {
             <div className="main-app-area">
               {/* APP goes here */}
               <Altair />
+              <div>
+                <YoutubeEmbed yurl="https://www.youtube.com/watch?v=sOFmYwYa9Pk" />
+              </div>
               <video
                 className={cn("stream", {
                   hidden: !videoRef.current || !videoStream,
@@ -70,3 +73,16 @@ function App() {
 }
 
 export default App;
+
+const YoutubeEmbed = ({ yurl }: { yurl: string }) => {
+  const embedId = yurl.split('?v=')[1]
+  return <iframe
+      width="480"
+      height="270"
+      src={`https://www.youtube.com/embed/${embedId}?autoplay=1`}
+      style={{border:0}}
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowFullScreen
+      title="Embedded youtube"
+    />
+}
