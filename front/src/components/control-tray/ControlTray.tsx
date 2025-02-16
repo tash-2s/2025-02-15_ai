@@ -49,6 +49,7 @@ function ControlTray() {
     setIsSummarizing(true)
     const s = await summarize(yurl)
     setSummary(s)
+    speakText(s)
   }
 
   useEffect(() => {
@@ -85,7 +86,7 @@ Keep responses short and to the point. No unnecessary introductions—just descr
       if (counter % 2 === 0) {
         setTimeout(() => {
           client.send({ text: pro })
-        }, 200)
+        }, 300)
       }
     })
     return () => {client.off("log", console.log)}
@@ -164,15 +165,18 @@ Keep responses short and to the point. No unnecessary introductions—just descr
 
   return <>
     <div className="main-app-area">
-      <input
-        type="text"
-        placeholder="Enter YouTube URL"
-        size={50}
-        value={yurl}
-        onChange={e => setYurl(e.target.value)}
-      />
-      {" "}
-      <button type="button" onClick={go}>Go</button>
+      <div>
+        <input
+          type="text"
+          placeholder="Enter YouTube URL"
+          size={50}
+          value={yurl}
+          onChange={e => setYurl(e.target.value)}
+        />
+        {" "}
+        <button type="button" onClick={go}>Go</button>
+      </div>
+      <br />
       <br />
       <div id="yt-embed">
         {yurl === "" ? <></> : <YoutubeEmbed yurl={yurl} />}
@@ -235,4 +239,19 @@ const summarize = async (url: string) => {
   ).then(r => r.json())
 
   return r.summary as string
+}
+
+function speakText(text: string) {
+  if (!window.speechSynthesis) {
+    alert("Text-to-Speech is not supported in this browser.");
+    return;
+  }
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "en-US";
+  utterance.rate = 1.0;
+  utterance.pitch = 1.0;
+  utterance.volume = 1.0;
+
+  window.speechSynthesis.speak(utterance);
 }
