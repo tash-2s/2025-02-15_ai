@@ -169,3 +169,12 @@ body {
   border-radius: 32px;
   max-height: fit-content;
 }
+
+#yt-embed {
+  /* Forms a stacking context */
+  isolation: isolate;
+  /* Flattened */
+  transform-style: flat;
+  /* Explicit background color to stop the capture being transparent */
+  background-color: white;
+}
