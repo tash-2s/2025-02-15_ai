@@ -15,7 +15,7 @@
  */
 import "./App.scss";
 import { LiveAPIProvider } from "./contexts/LiveAPIContext";
-import SidePanel from "./components/side-panel/SidePanel";
+// import SidePanel from "./components/side-panel/SidePanel";
 import ControlTray from "./components/control-tray/ControlTray";
 
 const API_KEY = process.env.REACT_APP_GEMINI_API_KEY as string;
@@ -31,7 +31,7 @@ function App() {
     <div className="App">
       <LiveAPIProvider url={uri} apiKey={API_KEY}>
         <div className="streaming-console">
-          <SidePanel />
+          {/*<SidePanel />*/}
           <main>
             <div className="main-app-area">
               {/* APP goes here */}
