@@ -41,12 +41,25 @@ export function useScreenCapture(): UseMediaStreamResult {
   }, [stream]);
 
   const start = async () => {
+    const ytElm = document.querySelector("#yt-embed");
+
     // const controller = new CaptureController();
     // controller.setFocusBehavior("no-focus-change");
-    const mediaStream = await navigator.mediaDevices.getDisplayMedia({
-      video: true,
+
+    const opt = {
+      audio: false,
+      video: {
+        displaySurface: "window",
+      },
+      preferCurrentTab: true,
       // controller
-    });
+    } as any
+    const mediaStream = await navigator.mediaDevices.getDisplayMedia(opt);
+
+    const [track] = mediaStream.getVideoTracks();
+    const restrictionTarget = await (globalThis as any).RestrictionTarget.fromElement(ytElm);
+    await (track as any).restrictTo(restrictionTarget);
+
     setStream(mediaStream);
     setIsStreaming(true);
     return mediaStream;

@@ -46,7 +46,7 @@ function App() {
             <div className="main-app-area">
               {/* APP goes here */}
               <Altair />
-              <div>
+              <div id="yt-embed">
                 <YoutubeEmbed yurl="https://www.youtube.com/watch?v=sOFmYwYa9Pk" />
               </div>
               <video
