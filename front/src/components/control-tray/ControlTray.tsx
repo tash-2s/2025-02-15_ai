@@ -26,7 +26,6 @@ import "./control-tray.scss";
 export type ControlTrayProps = {
   videoRef: RefObject<HTMLVideoElement>;
   children?: ReactNode;
-  supportsVideo: boolean;
   onVideoStreamChange?: (stream: MediaStream | null) => void;
 };
 
@@ -58,7 +57,6 @@ function ControlTray({
   videoRef,
   children,
   onVideoStreamChange = () => {},
-  supportsVideo,
 }: ControlTrayProps) {
   const videoStreams = [useScreenCapture()];
   const [activeVideoStream, setActiveVideoStream] =
@@ -139,18 +137,13 @@ function ControlTray({
         <div className="action-button no-action outlined">
           <AudioPulse volume={volume} active={connected} hover={false} />
         </div>
-
-        {supportsVideo && (
-          <>
-            <MediaStreamButton
-              isStreaming={screenCapture.isStreaming}
-              start={changeStreams(screenCapture)}
-              stop={changeStreams()}
-              onIcon="cancel_presentation"
-              offIcon="present_to_all"
-            />
-          </>
-        )}
+        <MediaStreamButton
+          isStreaming={screenCapture.isStreaming}
+          start={changeStreams(screenCapture)}
+          stop={changeStreams()}
+          onIcon="cancel_presentation"
+          offIcon="present_to_all"
+        />
         {children}
       </nav>
 
