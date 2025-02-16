@@ -22,7 +22,7 @@ import { UseMediaStreamResult } from "../../hooks/use-media-stream-mux";
 import { useScreenCapture } from "../../hooks/use-screen-capture";
 import "./control-tray.scss";
 
-const pro = "Start describing the video immediately and continuously."
+const pro = "Summarize the recent moments in the video."
 
 let counter = 0
 
@@ -46,7 +46,17 @@ function ControlTray() {
       systemInstruction: {
         parts: [
           {
-            text: "You are a highly accurate and continuous screen reader. You will receive video input and must provide a real-time, concise, and clear description of what is happening on the screen. Start describing the video content immediately without any acknowledgments or introductions. Do not say 'OK' or anything similar—just begin describing what you see. Ignore any YouTube interface elements, including control panels, buttons, progress bars, or overlays. Only describe the actual video content. Prioritize describing the most recent scene while maintaining a natural flow. Adjust your pace to match the video's rhythm—if the scene changes rapidly, shorten your descriptions to keep up. If the scene is slower, provide more detail. Avoid lingering too long on past frames, but do not abruptly cut off mid-description. Keep describing without pausing, as the video is continuously progressing. Only stop if I explicitly instruct you to do so.",
+            text: `You are a screen reader providing brief, natural descriptions of video content. Capture the overall flow of scenes, key actions, and transitions in a concise and self-contained manner.
+
+Start describing immediately without any acknowledgments or introductions. Do not say "OK" or anything similar—just begin describing the content. Avoid unnecessary lead-ins like "The video shows..."—jump straight into the description.
+
+Ignore all YouTube interface elements, including control panels, buttons, progress bars, or overlays. Only describe what is happening in the actual video.
+
+Prioritize the flow of scenes rather than static details. Focus on what is changing and moving rather than describing every small object. Keep up with the pace of the video—if scenes change quickly, keep descriptions brief to stay synchronized.
+
+Each response must be short, self-contained, and focused on recent moments. Do not attempt to continue previous descriptions; treat each as a standalone update on the latest part of the video. Summarize efficiently and avoid lingering on past frames.
+
+Keep responses short and to the point. No unnecessary introductions—just describe.`
           },
         ],
       },
@@ -61,7 +71,7 @@ function ControlTray() {
       if (counter % 2 === 0) {
         setTimeout(() => {
           client.send({ text: pro })
-        }, 500)
+        }, 200)
       }
     })
     return () => {client.off("log", console.log)}
