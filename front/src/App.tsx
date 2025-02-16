@@ -13,14 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import { useRef, useState } from "react";
 import "./App.scss";
 import { LiveAPIProvider } from "./contexts/LiveAPIContext";
 import SidePanel from "./components/side-panel/SidePanel";
 import { Altair } from "./components/altair/Altair";
 import ControlTray from "./components/control-tray/ControlTray";
-import cn from "classnames";
 
 const API_KEY = process.env.REACT_APP_GEMINI_API_KEY as string;
 if (typeof API_KEY !== "string") {
@@ -31,12 +28,6 @@ const host = "generativelanguage.googleapis.com";
 const uri = `wss://${host}/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent`;
 
 function App() {
-  // this video reference is used for displaying the active stream, whether that is the webcam or screen capture
-  // feel free to style as you see fit
-  const videoRef = useRef<HTMLVideoElement>(null);
-  // either the screen capture, the video or null, if null we hide it
-  const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
-
   return (
     <div className="App">
       <LiveAPIProvider url={uri} apiKey={API_KEY}>
@@ -49,23 +40,9 @@ function App() {
               <div id="yt-embed">
                 <YoutubeEmbed yurl="https://www.youtube.com/watch?v=sOFmYwYa9Pk" />
               </div>
-              <video
-                className={cn("stream", {
-                  hidden: !videoRef.current || !videoStream,
-                })}
-                ref={videoRef}
-                autoPlay
-                playsInline
-                width="200"
-              />
             </div>
 
-            <ControlTray
-              videoRef={videoRef}
-              onVideoStreamChange={setVideoStream}
-            >
-              {/* put your own buttons here */}
-            </ControlTray>
+            <ControlTray />
           </main>
         </div>
       </LiveAPIProvider>
@@ -81,7 +58,7 @@ const YoutubeEmbed = ({ yurl }: { yurl: string }) => {
       width="480"
       height="270"
       src={`https://www.youtube.com/embed/${embedId}?autoplay=1`}
-      style={{border:0}}
+      style={{border:0, display: "block" }}
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
       allowFullScreen
       title="Embedded youtube"

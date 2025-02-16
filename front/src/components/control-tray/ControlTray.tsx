@@ -16,22 +16,13 @@
 
 import cn from "classnames";
 
-import { memo, ReactNode, RefObject, useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { useLiveAPIContext } from "../../contexts/LiveAPIContext";
 import { UseMediaStreamResult } from "../../hooks/use-media-stream-mux";
 import { useScreenCapture } from "../../hooks/use-screen-capture";
 import "./control-tray.scss";
 
-export type ControlTrayProps = {
-  videoRef: RefObject<HTMLVideoElement>;
-  children?: ReactNode;
-  onVideoStreamChange?: (stream: MediaStream | null) => void;
-};
-
-function ControlTray({
-  videoRef,
-  onVideoStreamChange = () => {},
-}: ControlTrayProps) {
+function ControlTray() {
   const videoStreams = [useScreenCapture()];
   const [activeVideoStream, setActiveVideoStream] =
     useState<MediaStream | null>(null);
@@ -56,31 +47,34 @@ function ControlTray({
   }, []);
 
   useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.srcObject = activeVideoStream;
-    }
-
     let timeoutId = -1;
 
-    function sendVideoFrame() {
-      const video = videoRef.current;
+    async function sendVideoFrame() {
       const canvas = renderCanvasRef.current;
 
-      if (!video || !canvas) {
+      if (!activeVideoStream || !canvas) {
         return;
       }
 
+      const videoTrack = activeVideoStream.getVideoTracks()[0];
+      if (!videoTrack) {
+        throw new Error("No video track found in MediaStream.");
+      }
+
+      const imageCapture = new (globalThis as any).ImageCapture(videoTrack)
+      const bitmap = await imageCapture.grabFrame();
+
       const ctx = canvas.getContext("2d")!;
-      canvas.width = video.videoWidth * 0.25;
-      canvas.height = video.videoHeight * 0.25;
+      canvas.width = bitmap.width * 0.5;
+      canvas.height = bitmap.height * 0.5;
       if (canvas.width + canvas.height > 0) {
-        ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+        ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
         const base64 = canvas.toDataURL("image/jpeg", 1.0);
         const data = base64.slice(base64.indexOf(",") + 1, Infinity);
         client.sendRealtimeInput([{ mimeType: "image/jpeg", data }]);
       }
       if (connected) {
-        timeoutId = window.setTimeout(sendVideoFrame, 1000 / 0.5);
+        timeoutId = window.setTimeout(sendVideoFrame, 3000);
       }
     }
     if (connected && activeVideoStream !== null) {
@@ -89,17 +83,15 @@ function ControlTray({
     return () => {
       clearTimeout(timeoutId);
     };
-  }, [connected, activeVideoStream, client, videoRef]);
+  }, [connected, activeVideoStream, client]);
 
   //handler for swapping from one video-stream to the next
   const changeStreams = async (next?: UseMediaStreamResult) => {
     if (next) {
       const mediaStream = await next.start();
       setActiveVideoStream(mediaStream);
-      onVideoStreamChange(mediaStream);
     } else {
       setActiveVideoStream(null);
-      onVideoStreamChange(null);
     }
 
     videoStreams.filter((msr) => msr !== next).forEach((msr) => msr.stop());
