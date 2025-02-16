@@ -15,7 +15,6 @@
  */
 import "./App.scss";
 import { LiveAPIProvider } from "./contexts/LiveAPIContext";
-// import SidePanel from "./components/side-panel/SidePanel";
 import ControlTray from "./components/control-tray/ControlTray";
 
 const API_KEY = process.env.REACT_APP_GEMINI_API_KEY as string;
@@ -31,15 +30,7 @@ function App() {
     <div className="App">
       <LiveAPIProvider url={uri} apiKey={API_KEY}>
         <div className="streaming-console">
-          {/*<SidePanel />*/}
           <main>
-            <div className="main-app-area">
-              {/* APP goes here */}
-              <div id="yt-embed">
-                <YoutubeEmbed yurl="https://www.youtube.com/watch?v=sOFmYwYa9Pk" />
-              </div>
-            </div>
-
             <ControlTray />
           </main>
         </div>
@@ -49,16 +40,3 @@ function App() {
 }
 
 export default App;
-
-const YoutubeEmbed = ({ yurl }: { yurl: string }) => {
-  const embedId = yurl.split('?v=')[1]
-  return <iframe
-      width="480"
-      height="270"
-      src={`https://www.youtube.com/embed/${embedId}?autoplay=1`}
-      style={{border:0, display: "block" }}
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-      allowFullScreen
-      title="Embedded youtube"
-    />
-}

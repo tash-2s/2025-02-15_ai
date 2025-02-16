@@ -37,6 +37,20 @@ function ControlTray() {
   const { setConfig, client, connected, connect, disconnect } =
     useLiveAPIContext();
 
+  const [yurl, setYurl] = useState("");
+
+  const go = () => {
+  }
+
+  const [isSummarizing, setIsSummarizing] = useState(false)
+  const [summary, setSummary] = useState("")
+
+  const handleSummarize = async () => {
+    setIsSummarizing(true)
+    const s = await summarize(yurl)
+    setSummary(s)
+  }
+
   useEffect(() => {
     setConfig({
       model: "models/gemini-2.0-flash-exp",
@@ -148,7 +162,22 @@ Keep responses short and to the point. No unnecessary introductions—just descr
     client.send({ text: pro })
   }
 
-  return (
+  return <>
+    <div className="main-app-area">
+      <input
+        type="text"
+        placeholder="Enter YouTube URL"
+        size={50}
+        value={yurl}
+        onChange={e => setYurl(e.target.value)}
+      />
+      {" "}
+      <button type="button" onClick={go}>Go</button>
+      <br />
+      <div id="yt-embed">
+        {yurl === "" ? <></> : <YoutubeEmbed yurl={yurl} />}
+      </div>
+    </div>
     <section className="control-tray">
       <canvas style={{ display: "none" }} ref={renderCanvasRef} />
 
@@ -165,9 +194,45 @@ Keep responses short and to the point. No unnecessary introductions—just descr
           </button>
         </div>
         <span className="text-indicator">Streaming</span>
+        <div className="connection-button-container">
+          <button
+            className={"action-button"}
+            onClick={handleSummarize}
+          >
+            <span className="material-symbols-outlined filled">
+              Summarize
+            </span>
+          </button>
+        </div>
       </div>
     </section>
-  );
+  </>;
 }
 
 export default memo(ControlTray);
+
+const YoutubeEmbed = ({ yurl }: { yurl: string }) => {
+  const embedId = yurl.split('?v=')[1]
+  return <iframe
+      width="480"
+      height="270"
+      src={`https://www.youtube.com/embed/${embedId}?autoplay=1`}
+      style={{border:0, display: "block" }}
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowFullScreen
+      title="Embedded youtube"
+    />
+}
+
+const summarize = async (url: string) => {
+  const r = await fetch(
+    `http://127.0.0.1:8000/summarize`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url: url }),
+    }
+  ).then(r => r.json())
+
+  return r.summary as string
+}
